@@ -36,9 +36,6 @@ class BountyMessager(commands.Cog):
                     f'{bounty_item["dollars"]} ({bounty_item["cycles"]} Cycles)'
                 )
 
-                embed.add_field(name="# of Applications",
-                                value=bounty_item['applicationCount'])
-
                 embed.add_field(name='Deadline',
                                 value=bounty_item['timestamp'])
 
