@@ -5,7 +5,6 @@ __version__ = '0.0.0'
 import os
 import time
 import util
-import aiohttp
 import nextcord
 from console import fg
 from nextcord.ext import commands
@@ -35,7 +34,6 @@ bot.__version__ = __version__
 
 @bot.event
 async def on_ready():
-    bot.session = aiohttp.ClientSession()
     print(f'Bot Version: {fg.lightgreen}{__version__}{fg.default}')
     print(f'Connected to bot: {fg.lightgreen}{bot.user.name}{fg.default}')
     print(f'Bot ID: {fg.lightgreen}{bot.user.id}{fg.default}')

@@ -1,85 +1,139 @@
-import requests
-from bs4 import BeautifulSoup
+import os
 from pathlib import Path
 import json
+from datetime import datetime
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+BOUNTIES_CACHE_LENGTH = 3
 
 BOUNTY_URL = "https://replit.com/bounties"
+GRAPHQL_URL = "https://replit.com/graphql"
 
-BOUNTIES_CACHE_LENGTH = 10
+BOUNTY_QUERY = """
+query BountiesPageSearch($input: BountySearchInput!) {
+  bountySearch(input: $input) {
+    __typename
+    ... on BountySearchConnection {
+      items {
+        ...BountyCard
+        __typename
+      }
+      pageInfo {
+        hasNextPage
+        nextCursor
+        __typename
+      }
+      __typename
+    }
+    ... on UserError {
+      message
+      __typename
+    }
+    ... on UnauthorizedError {
+      message
+      __typename
+    }
+  }
+}
+
+fragment BountyCard on Bounty {
+  id
+  title
+  descriptionPreview
+  cycles
+  deadline
+  slug
+  timeCreated
+  applicationCount
+  user {
+    url
+  }
+}
+"""
+
+GRAPHQL_PAYLOAD = [{
+    "operationName": "BountiesPageSearch",
+    "variables": {
+        "input": {
+            "count": BOUNTIES_CACHE_LENGTH,
+            "searchQuery": "",
+            "status": "open",
+            "order": "creationDateDescending"
+        }
+    },
+    "query": BOUNTY_QUERY
+}]
+
+COOKIES = {'connect.sid': os.getenv('connect.sid')}
 
 HEADERS = {
     'User-agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+    "Content-Type": "application/json",
+    "X-Requested-With": "XMLHttpRequest"
 }
 
+BOUNTY_FETCH = f"""const callback = arguments[arguments.length - 1]; 
+fetch(\"{GRAPHQL_URL}", {{
+  "headers": {{
+    "Accept": "*/*",
+    "Content-Type": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+    "Cookie": {json.dumps(COOKIES)}
+  }},
+  "body": JSON.stringify({json.dumps(GRAPHQL_PAYLOAD)}),
+  "method": "POST",
+}}).then(response => {{
+  response.json().then(data => {{
+    callback(data[0].data.bountySearch.items.reverse());
+  }});
+}});
+"""
 
-def fetch_bounties(soup):
-    bounties_list = soup.find("ul",
-                              class_="css-ph3dp7").find_all("li",
-                                                            recursive=False)
 
-    bounties = []
-
-    for bounty_element in bounties_list:
-        dollars = bounty_element.select(
-            'div > div > div.css-1p35i8v > div > span.css-1vcini8'
-        )[0].get_text(strip=True)
-        cycles = bounty_element.select(
-            'div > div > div.css-1p35i8v > div > span.css-1dfa7l9 > div.css-uoocf6 > span'
-        )[0].get_text(strip=True)
-
-        url = 'https://replit.com' + bounty_element.select(
-            'div > a')[0]['href']
-
-        description = bounty_element.select('div > div > span')[0].get_text(
-            strip=True)
-
-        title = bounty_element.select('div > div > h3')[0].get_text(strip=True)
-
-        due_in = ' '.join(
-            bounty_element.select(
-                'div > div > div.css-1p35i8v > span > div.css-1pwjctj > span')
-            [0].get_text(strip=True).split(' ')[2:])
-
-        #author = bounty_element.select(
-        #    'div > div > div.css-11g7lfh > div:nth-child(1) > a > span > span > div > div.css-12zqyc0 > span'
-        #)[0].get_text(strip=True)
-
-        bounties.append({
-            "dollars": dollars,
-            "cycles": cycles,
-            "url": url,
-            "description": description,
-            "title": title,
-            "due_in": due_in,
-            #"author": author
-        })
-
-    return bounties[::-1]
+def init():
+    global chrome_options, driver
+    chrome_options = Options()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(BOUNTY_URL)
 
 
 def check_for_updates():
-    bounty_page = requests.get(BOUNTY_URL, headers=HEADERS)
-    bounty_page.encoding = bounty_page.apparent_encoding
+    bounties = driver.execute_async_script(BOUNTY_FETCH)
 
-    soup = BeautifulSoup(bounty_page.text, features="html.parser")
+    # Add some custom properties to each bounty that will be handy later
+    for bounty in bounties:
+        bounty['url'] = "https://replit.com/bounties" + bounty['user'][
+            'url'] + '/' + bounty['slug']
+        utc_time = datetime.strptime(bounty['deadline'],
+                                     "%Y-%m-%dT%H:%M:%S.%fZ")
+        epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
+        bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
+        bounty['dollars'] = "${:.2f}".format(bounty['cycles'] / 100)
 
-    old_bounty_page = Path('prev_bounty.html').read_text('utf-8')
     old_bounties = json.loads(Path('bounties.json').read_text('utf-8'))
+    if len(old_bounties) == 0:
+        old_bounties.append({'id': -1})
 
-    bounties_updated = old_bounty_page != bounty_page
-
-    if bounties_updated:
-        new_bounties = fetch_bounties(soup)
-        new_bounty_index = len(new_bounties) - 1
-
-        # Figure out how many bounties behind we are, since this doesn't update in realtime
-        for i, bounty in enumerate(new_bounties):
-            if len(old_bounties) == 0 or bounty == old_bounties[-1]:
-                new_bounty_index = i + 1
-
-        Path('prev_bounty.html').write_text(
-            json.dumps(new_bounties[new_bounty_index:]), 'utf-8')
-        return new_bounties[new_bounty_index:]
-    else:
+    # We're up-to-date
+    if bounties[-1]['id'] <= old_bounties[-1]['id']:
         return None
+
+    # Figure out how many bounties behind we are
+    else:
+        max_old_bounty_id = old_bounties[-1]['id']
+        max_bounty_id = bounties[-1]['id']
+
+        # The difference between the highest ID in old_bounties and bounties is the number of bounties behind we are
+        new_bounties_start = max(max_bounty_id - max_old_bounty_id, -3)
+
+        # Get the previous N bounties from the new bounties
+        new_bounties = bounties[-new_bounties_start:]
+
+        Path('bounties.json').write_text(json.dumps(new_bounties), 'utf-8')
+        return new_bounties
