@@ -68,32 +68,6 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
-name = "beautifulsoup4"
-version = "4.11.1"
-description = "Screen-scraping library"
-category = "main"
-optional = false
-python-versions = ">=3.6.0"
-
-[package.dependencies]
-soupsieve = ">1.2"
-
-[package.extras]
-html5lib = ["html5lib"]
-lxml = ["lxml"]
-
-[[package]]
-name = "bs4"
-version = "0.0.1"
-description = "Dummy package for Beautiful Soup"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-beautifulsoup4 = "*"
-
-[[package]]
 name = "certifi"
 version = "2022.12.7"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -330,14 +304,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "soupsieve"
-version = "2.3.2.post1"
-description = "A modern CSS selector implementation for Beautiful Soup."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "trio"
 version = "0.22.0"
 description = "A friendly Python library for async concurrency and I/O"
@@ -410,7 +376,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8.0,<3.9"
-content-hash = "bf2aa1fa73f394b646eacebce1017714a9ab784b9ac53478c45c052dc3561f89"
+content-hash = "76fca96888edb9c3a07d2a256fbeed1defee43ea11f121d6f7a0750990714cab"
 
 [metadata.files]
 aiohttp = []
@@ -419,8 +385,6 @@ ansicon = []
 async-generator = []
 async-timeout = []
 attrs = []
-beautifulsoup4 = []
-bs4 = []
 certifi = []
 cffi = []
 charset-normalizer = []
@@ -444,7 +408,6 @@ requests = []
 selenium = []
 sniffio = []
 sortedcontainers = []
-soupsieve = []
 trio = []
 trio-websocket = []
 urllib3 = []
