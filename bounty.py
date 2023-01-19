@@ -134,7 +134,7 @@ def check_for_updates():
         max_bounty_id = bounties[-1]['id']
 
         # The difference between the highest ID in old_bounties and bounties is the number of bounties behind we are
-        new_bounties_start = max((max_bounty_id - max_old_bounty_id) - 1, -3)
+        new_bounties_start = max((max_bounty_id - max_old_bounty_id) + 1, -3)
 
         # Get the previous N bounties from the new bounties
         new_bounties = bounties[-new_bounties_start:]
