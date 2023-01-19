@@ -10,7 +10,7 @@ load_dotenv()
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-BOUNTIES_CACHE_LENGTH = 3
+BOUNTIES_CACHE_LENGTH = 1
 
 BOUNTY_URL = "https://replit.com/bounties"
 GRAPHQL_URL = "https://replit.com/graphql"
@@ -120,24 +120,16 @@ def check_for_updates():
         bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
         bounty['dollars'] = "${:.2f}".format(bounty['cycles'] / 100)
 
-    old_bounties = json.loads(Path('bounties.json').read_text('utf-8'))
-    if len(old_bounties) == 0:
-        old_bounties.append({'id': -1})
+    old_bounty = json.loads(Path('bounties.json').read_text('utf-8'))
+    if old_bounty is None:
+        old_bounty = {'id': -1}
 
     # We're up-to-date
-    if bounties[-1]['id'] <= old_bounties[-1]['id']:
+    if bounties[0]['id'] <= old_bounty[0]['id']:
         return None
-
-    # Figure out how many bounties behind we are
     else:
-        max_old_bounty_id = old_bounties[-1]['id']
-        max_bounty_id = bounties[-1]['id']
-
-        # The difference between the highest ID in old_bounties and bounties is the number of bounties behind we are
-        new_bounties_start = max((max_bounty_id - max_old_bounty_id) + 1, -3)
-
         # Get the previous N bounties from the new bounties
-        new_bounties = bounties[-new_bounties_start:]
+        new_bounty = bounties[0]
 
-        Path('bounties.json').write_text(json.dumps(new_bounties), 'utf-8')
-        return new_bounties
+        Path('bounties.json').write_text(json.dumps(new_bounty), 'utf-8')
+        return new_bounty

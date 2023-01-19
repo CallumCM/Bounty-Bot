@@ -17,29 +17,26 @@ class BountyMessager(commands.Cog):
         bounty.init()
         self.update_bounty.start()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=5)
     async def update_bounty(self):
-        bounty_updates = bounty.check_for_updates()
-        if bounty_updates:
-            for bounty_item in bounty_updates:
-                embed = nextcord.Embed(
-                    title=bounty_item['title'],
-                    url=bounty_item["url"],
-                    description=bounty_item["descriptionPreview"],
-                    color=0xe75f0a)
+        new_bounty = bounty.check_for_updates()
+        if new_bounty:
+            embed = nextcord.Embed(
+                title=new_bounty['title'],
+                url=new_bounty["url"],
+                description=new_bounty["descriptionPreview"],
+                color=0xe75f0a)
 
-                #embed.set_author(name='@' + bounty_item["author"])
+            #embed.set_author(name='@' + new_bounty["author"])
 
-                embed.add_field(
-                    name="Pays",
-                    value=
-                    f'{bounty_item["dollars"]} ({bounty_item["cycles"]} Cycles)'
-                )
+            embed.add_field(
+                name="Pays",
+                value=f'{new_bounty["dollars"]} ({new_bounty["cycles"]} Cycles)'
+            )
 
-                embed.add_field(name='Deadline',
-                                value=bounty_item['timestamp'])
+            embed.add_field(name='Deadline', value=new_bounty['timestamp'])
 
-                await self.channel.send(embed=embed)
+            await self.channel.send(embed=embed)
 
 
 def setup(bot):
