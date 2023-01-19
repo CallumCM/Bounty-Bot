@@ -9,10 +9,6 @@ load_dotenv()
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service as ChromeService
-
-# To handle automatic downloads of Chrome webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 
 BOUNTIES_CACHE_LENGTH = 3
 
@@ -102,14 +98,12 @@ fetch(\"{GRAPHQL_URL}", {{
 
 
 def init():
-    global chrome_options, driver
+    global driver
     chrome_options = Options()
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options,
-                              service=ChromeService(
-                                  ChromeDriverManager().install()))
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(BOUNTY_URL)
 
 
@@ -140,7 +134,7 @@ def check_for_updates():
         max_bounty_id = bounties[-1]['id']
 
         # The difference between the highest ID in old_bounties and bounties is the number of bounties behind we are
-        new_bounties_start = max(max_bounty_id - max_old_bounty_id, -3)
+        new_bounties_start = max((max_bounty_id - max_old_bounty_id) - 1, -3)
 
         # Get the previous N bounties from the new bounties
         new_bounties = bounties[-new_bounties_start:]

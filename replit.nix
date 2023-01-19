@@ -1,5 +1,6 @@
 { pkgs }: {
   deps = [
+    pkgs.unzip
     pkgs.python38Full
     pkgs.chromium
     pkgs.chromedriver
