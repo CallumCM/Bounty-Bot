@@ -115,9 +115,13 @@ def calculate_new_bounties(old_bounties, new_bounties):
     num_new_bounties = len(new_bounties)
     for i, bounty in enumerate(old_bounties):
         if new_bounties[0] == bounty:
+
             # We've found how many new bounties there are
             num_new_bounties = i
             break
+
+    if num_new_bounties == 0:
+        return []
 
     # [{bounty}, {bounty2}, {bounty3}]
     # Let's say one of these is new, new_bounties[:-1] will be {bounty3}
