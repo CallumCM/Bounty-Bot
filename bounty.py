@@ -10,7 +10,7 @@ load_dotenv()
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-BOUNTIES_CACHE_LENGTH = 1
+BOUNTIES_CACHE_LENGTH = 5
 
 BOUNTY_URL = "https://replit.com/bounties"
 GRAPHQL_URL = "https://replit.com/graphql"
@@ -107,25 +107,48 @@ def init():
     driver.get(BOUNTY_URL)
 
 
+def calculate_new_bounties(old_bounties, new_bounties):
+
+    # If we don't end up finding a match between old and new bounties, there's more than 5
+    # While highly unlikely, in the future I'd like to add support for this so that it'll
+    # fetch more bounties until it finds a match, to ensure none are missed.
+    num_new_bounties = len(new_bounties)
+    for i, bounty in enumerate(old_bounties):
+        if new_bounties[0] == bounty:
+            # We've found how many new bounties there are
+            num_new_bounties = i
+            break
+
+    # [{bounty}, {bounty2}, {bounty3}]
+    # Let's say one of these is new, new_bounties[:-1] will be {bounty3}
+    return new_bounties[-num_new_bounties:]
+
+
 def check_for_updates():
-    new_bounty = driver.execute_async_script(BOUNTY_FETCH)[0]
 
-    # Add some custom properties to the bounty that will be handy later
-    new_bounty['url'] = "https://replit.com/bounties" + new_bounty['user'][
-        'url'] + '/' + new_bounty['slug']
-    utc_time = datetime.strptime(new_bounty['deadline'],
-                                 "%Y-%m-%dT%H:%M:%S.%fZ")
-    epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
-    new_bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
-    new_bounty['dollars'] = "${:.2f}".format(new_bounty['cycles'] / 100)
+    # Bounties we fetched from Replit
+    fetched_bounties = driver.execute_async_script(BOUNTY_FETCH)
 
-    old_bounty = json.loads(Path('bounties.json').read_text('utf-8'))
-    if old_bounty == {}:
-        old_bounty = {'id': -1}
+    for new_bounty in fetched_bounties:
 
-    # We're up-to-date
-    if new_bounty['id'] <= old_bounty['id']:
-        return None
+        # Add some custom properties to the bounty that will be handy later
+        new_bounty['url'] = "https://replit.com/bounties" + new_bounty['user'][
+            'url'] + '/' + new_bounty['slug']
+        utc_time = datetime.strptime(new_bounty['deadline'],
+                                     "%Y-%m-%dT%H:%M:%S.%fZ")
+        epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
+        new_bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
+        new_bounty['dollars'] = "${:.2f}".format(new_bounty['cycles'] / 100)
+
+    # Bounties that exist in bounties.json
+    old_bounties = json.loads(Path('bounties.json').read_text('utf-8'))
+    if len(old_bounties) == 0:
+        old_bounties = [{'id': -1}]
+
+    new_bounties = calculate_new_bounties(old_bounties, fetched_bounties)
+
+    if new_bounties:
+        Path('bounties.json').write_text(json.dumps(fetched_bounties), 'utf-8')
+        return new_bounties
     else:
-        Path('bounties.json').write_text(json.dumps(new_bounty), 'utf-8')
-        return new_bounty
+        return None
