@@ -108,28 +108,24 @@ def init():
 
 
 def check_for_updates():
-    bounties = driver.execute_async_script(BOUNTY_FETCH)
+    new_bounty = driver.execute_async_script(BOUNTY_FETCH)[0]
 
-    # Add some custom properties to each bounty that will be handy later
-    for bounty in bounties:
-        bounty['url'] = "https://replit.com/bounties" + bounty['user'][
-            'url'] + '/' + bounty['slug']
-        utc_time = datetime.strptime(bounty['deadline'],
-                                     "%Y-%m-%dT%H:%M:%S.%fZ")
-        epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
-        bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
-        bounty['dollars'] = "${:.2f}".format(bounty['cycles'] / 100)
+    # Add some custom properties to the bounty that will be handy later
+    new_bounty['url'] = "https://replit.com/bounties" + new_bounty['user'][
+        'url'] + '/' + new_bounty['slug']
+    utc_time = datetime.strptime(new_bounty['deadline'],
+                                 "%Y-%m-%dT%H:%M:%S.%fZ")
+    epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
+    new_bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
+    new_bounty['dollars'] = "${:.2f}".format(new_bounty['cycles'] / 100)
 
     old_bounty = json.loads(Path('bounties.json').read_text('utf-8'))
-    if old_bounty is None:
+    if old_bounty == {}:
         old_bounty = {'id': -1}
 
     # We're up-to-date
-    if bounties[0]['id'] <= old_bounty[0]['id']:
+    if new_bounty['id'] <= old_bounty['id']:
         return None
     else:
-        # Get the previous N bounties from the new bounties
-        new_bounty = bounties[0]
-
         Path('bounties.json').write_text(json.dumps(new_bounty), 'utf-8')
         return new_bounty
