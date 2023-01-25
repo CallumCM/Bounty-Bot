@@ -109,23 +109,21 @@ def init():
 
 def calculate_new_bounties(old_bounties, new_bounties):
 
-    # If we don't end up finding a match between old and new bounties, there's more than 5
-    # While highly unlikely, in the future I'd like to add support for this so that it'll
-    # fetch more bounties until it finds a match, to ensure none are missed.
-    num_new_bounties = len(new_bounties)
-    for i, bounty in enumerate(old_bounties):
-        if new_bounties[0] == bounty:
+    # If we don't end up finding a match between old and new bounties,
+    # there's more new bounties than BOUNTIES_CACHE_LENGTH.
 
-            # We've found how many new bounties there are
-            num_new_bounties = i
-            break
+    # While this is highly unlikely, in the future
+    # I'd like to add support for this so that it'll
+    # fetch more bounties until it finds a match,
+    # to ensure none are missed.
 
-    if num_new_bounties == 0:
-        return []
+    new_bounties_end_index = 0
+    for i, bounty in enumerate(new_bounties):
+        if not bounty in old_bounties:
+            print(bounty['title'])
+            new_bounties_end_index = i + 1
 
-    # [{bounty}, {bounty2}, {bounty3}]
-    # Let's say one of these is new, new_bounties[:-1] will be {bounty3}
-    return new_bounties[-num_new_bounties:]
+    return new_bounties[:new_bounties_end_index]
 
 
 def check_for_updates():

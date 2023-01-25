@@ -1,5 +1,5 @@
 # The command that runs the program. Commented out because it is not run when the interpreter command is set
-run = ["python3", "main.py"]
+run = ""#["python3", "main.py"]
 # The primary language of the repl. There can be others, though!
 language = "python3"
 # The main file, which will be shown by default in the editor.
