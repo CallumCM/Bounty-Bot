@@ -117,19 +117,27 @@ def calculate_new_bounties(old_bounties, new_bounties):
     # fetch more bounties until it finds a match,
     # to ensure none are missed.
 
-    new_bounties_end_index = 0
+    legitimately_new_bounties = []
+
     for i, bounty in enumerate(new_bounties):
         if not bounty in old_bounties:
-            print(bounty['title'])
-            new_bounties_end_index = i + 1
+            print('New Bounty: ' + bounty['title'])
+            legitimately_new_bounties.append(bounty)
+        else:
+            print('Old Bounty: ' + bounty['title'])
 
-    return new_bounties[:new_bounties_end_index]
+    print('-' * 25)
+
+    return legitimately_new_bounties
 
 
 def check_for_updates():
+    print("Fetching new bounties...")
 
     # Bounties we fetched from Replit
     fetched_bounties = driver.execute_async_script(BOUNTY_FETCH)
+
+    print("Fetched new bounties")
 
     for new_bounty in fetched_bounties:
 
