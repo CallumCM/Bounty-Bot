@@ -13,7 +13,6 @@ class BountyMessager(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        bounty.init()
         self.update_bounty.start()
 
     @tasks.loop(minutes=5)

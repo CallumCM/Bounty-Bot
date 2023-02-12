@@ -5,16 +5,11 @@ from datetime import datetime
 
 import nextcord
 from dotenv import load_dotenv
+from gql import Gql
 
 load_dotenv()
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
 BOUNTIES_CACHE_LENGTH = 5
-
-BOUNTY_URL = "https://replit.com/bounties"
-GRAPHQL_URL = "https://replit.com/graphql"
 
 BOUNTY_QUERY = """
 query BountiesPageSearch($input: BountySearchInput!) {
@@ -71,41 +66,7 @@ GRAPHQL_PAYLOAD = [{
     "query": BOUNTY_QUERY
 }]
 
-COOKIES = {'connect.sid': os.getenv('connect.sid')}
-
-HEADERS = {
-    'User-agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-    "Content-Type": "application/json",
-    "X-Requested-With": "XMLHttpRequest"
-}
-
-BOUNTY_FETCH = f"""const callback = arguments[arguments.length - 1]; 
-fetch(\"{GRAPHQL_URL}", {{
-  "headers": {{
-    "Accept": "*/*",
-    "Content-Type": "application/json",
-    "X-Requested-With": "XMLHttpRequest",
-    "Cookie": {json.dumps(COOKIES)}
-  }},
-  "body": JSON.stringify({json.dumps(GRAPHQL_PAYLOAD)}),
-  "method": "POST",
-}}).then(response => {{
-  response.json().then(data => {{
-    callback(data[0].data.bountySearch.items.reverse());
-  }});
-}});
-"""
-
-
-def init():
-    global driver
-    chrome_options = Options()
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(BOUNTY_URL)
+gql = Gql(os.getenv('connect.sid'))
 
 
 def calculate_new_bounties(old_bounties, new_bounties):
@@ -168,7 +129,8 @@ def check_for_updates():
     print("Fetching new bounties...")
 
     # Bounties we fetched from Replit
-    fetched_bounties = driver.execute_async_script(BOUNTY_FETCH)
+    fetched_bounties = gql.replit(
+        GRAPHQL_PAYLOAD)[0]['data']['bountySearch']['items'][::-1]
 
     print("Fetched new bounties")
 
