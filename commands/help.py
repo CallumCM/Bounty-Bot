@@ -1,6 +1,8 @@
 import nextcord
 from nextcord.ext import commands
-from constants import TESTING_GUILD_ID, SLASH_COMMANDS_GLOBAL
+from constants import TESTING_GUILD_ID, SLASH_COMMANDS_GLOBAL, VALID_CHANNEL_NAMES, WELCOME_MESSAGE
+import util
+import bounty
 
 
 class HelpCommand(commands.Cog):
@@ -9,14 +11,21 @@ class HelpCommand(commands.Cog):
 
     @nextcord.slash_command(
         name='help',
-        description='Why am I here?',
+        description='Get the welcome message',
         guild_ids=TESTING_GUILD_ID,
         force_global=SLASH_COMMANDS_GLOBAL,
     )
     async def help_command(self, interaction: nextcord.Interaction):
-        await interaction.send(
-            "I'll let you know when there's new Replit bounties. I look for a channel called either `replit-bounties`, or `bounties` and I will send updates there. If you have any questions, please contact callum@geekveggie.dev"
-        )
+        channel = util.find_channel(VALID_CHANNEL_NAMES, interaction.guild)
+
+        if channel:
+            await channel.send(WELCOME_MESSAGE)
+
+            first_bounty = bounty.most_recent_bounty()
+            await channel.send(embed=bounty.create_bounty_embed(first_bounty))
+        else:
+            channel = interaction.channel
+            await channel.send(WELCOME_MESSAGE)
 
 
 def setup(bot):
