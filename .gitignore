@@ -1,6 +1,7 @@
 chromedriver
 chromedriver_linux64.zip
 bounties.json
+.env
 .replit
 replit.nix
 .config/*
