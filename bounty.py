@@ -4,10 +4,7 @@ import json
 from datetime import datetime
 
 import nextcord
-from dotenv import load_dotenv
 from gql import Gql
-
-load_dotenv()
 
 BOUNTIES_CACHE_LENGTH = 5
 
@@ -66,7 +63,7 @@ GRAPHQL_PAYLOAD = [{
     "query": BOUNTY_QUERY
 }]
 
-gql = Gql(os.getenv('connect.sid'))
+gql = Gql()
 
 
 def calculate_new_bounties(old_bounties, new_bounties):

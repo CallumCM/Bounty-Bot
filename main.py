@@ -1,5 +1,9 @@
 print(f'\033[0;34mInitializing Bot...\033[0m')
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 __version__ = '0.0.0'
 
 import os

@@ -2,8 +2,6 @@
   deps = [
     pkgs.unzip
     pkgs.python38Full
-    pkgs.chromium
-    pkgs.chromedriver
   ];
   env = {
     PYTHON_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
