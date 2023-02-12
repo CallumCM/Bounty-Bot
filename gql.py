@@ -3,7 +3,7 @@ import os
 
 
 class Gql():
-    def __init__(self, sid):
+    def __init__(self):
         self.sid = os.getenv('connect.sid')
 
     def replit(self, body):
