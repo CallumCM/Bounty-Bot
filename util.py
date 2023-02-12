@@ -2,9 +2,14 @@ from console import fg
 import os
 from traceback import extract_tb
 import subprocess
+from nextcord import Guild
 
 
-def find_channel(names, guild):
+def bot_has_permission(guild: Guild, permission: str):
+    return getattr(guild.me.guild_permissions, permission)
+
+
+def find_channel(names, guild: Guild):
     """
     Find a channel by an array of names, with the first name being the highest priority
     """
