@@ -17,9 +17,6 @@ activity = nextcord.Activity(
 )
 
 bot = commands.Bot(
-
-    # command_prefix is required for some reason even though this template uses all-slash-commands
-    command_prefix='!',
     intents=intents,
     activity=activity,
     case_insensitive=True,
