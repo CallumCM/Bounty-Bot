@@ -4,6 +4,18 @@ from traceback import extract_tb
 import subprocess
 
 
+def find_channel(names, guild):
+    """
+    Find a channel by an array of names, with the first name being the highest priority
+    """
+    for name in names:
+        for channel in guild.channels:
+            if channel.name == name:
+                return channel
+
+    return None
+
+
 def clear_terminal():
     """
     Clear the terminal

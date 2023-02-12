@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 from datetime import datetime
 
+import nextcord
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -133,6 +134,36 @@ def calculate_new_bounties(old_bounties, new_bounties):
     return legitimately_new_bounties
 
 
+def create_bounties_json_if_needed():
+    """If bounties.json does not exist, create it"""
+    if not os.path.isfile('bounties.json'):
+        Path('bounties.json').write_text('[]', 'utf-8')
+
+
+def most_recent_bounty():
+    """Fetch the most recent bounty cached in bounties.json"""
+    create_bounties_json_if_needed()
+    old_bounties = json.loads(Path('bounties.json').read_text('utf-8'))
+    if len(old_bounties) > 0:
+        return old_bounties[-1]
+    else:
+        return None
+
+
+def create_bounty_embed(bounty):
+    embed = nextcord.Embed(title=bounty['title'],
+                           url=bounty["url"],
+                           description=bounty["descriptionPreview"],
+                           color=0xe75f0a)
+
+    embed.add_field(name="Pays",
+                    value=f'{bounty["dollars"]} ({bounty["cycles"]} Cycles)')
+
+    embed.add_field(name='Deadline', value=bounty['timestamp'])
+
+    return embed
+
+
 def check_for_updates():
     print("Fetching new bounties...")
 
@@ -153,6 +184,7 @@ def check_for_updates():
         new_bounty['dollars'] = "${:.2f}".format(new_bounty['cycles'] / 100)
 
     # Bounties that exist in bounties.json
+    create_bounties_json_if_needed()
     old_bounties = json.loads(Path('bounties.json').read_text('utf-8'))
     if len(old_bounties) == 0:
         old_bounties = [{'id': -1}]

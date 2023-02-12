@@ -9,13 +9,14 @@ class HelpCommand(commands.Cog):
 
     @nextcord.slash_command(
         name='help',
-        description='What da hell is this',
+        description='Why am I here?',
         guild_ids=TESTING_GUILD_ID,
         force_global=SLASH_COMMANDS_GLOBAL,
     )
     async def help_command(self, interaction: nextcord.Interaction):
         await interaction.send(
-            "I'll let you know when there's new Replit bounties")
+            "I'll let you know when there's new Replit bounties. I look for a channel called either `replit-bounties`, or `bounties` and I will send updates there. If you have any questions, please contact callum@geekveggie.dev"
+        )
 
 
 def setup(bot):
