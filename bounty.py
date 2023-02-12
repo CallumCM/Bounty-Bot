@@ -120,7 +120,9 @@ def calculate_new_bounties(old_bounties, new_bounties):
     legitimately_new_bounties = []
 
     for i, bounty in enumerate(new_bounties):
-        if not bounty in old_bounties:
+        if not bounty['id'] in [
+                old_bounty['id'] for old_bounty in old_bounties
+        ]:
             print('New Bounty: ' + bounty['title'])
             legitimately_new_bounties.append(bounty)
         else:
