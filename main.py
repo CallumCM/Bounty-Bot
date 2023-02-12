@@ -9,7 +9,7 @@ import nextcord
 from console import fg
 from nextcord.ext import commands
 
-intents = nextcord.Intents.none()
+intents = nextcord.Intents.default()
 
 activity = nextcord.Activity(
     type=nextcord.ActivityType.watching,

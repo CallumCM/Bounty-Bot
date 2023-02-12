@@ -26,7 +26,7 @@ class HelpCommand(commands.Cog):
             first_bounty = bounty.most_recent_bounty()
             await channel.send(embed=bounty.create_bounty_embed(first_bounty))
 
-        await interaction.send(WELCOME_MESSAGE)
+        await interaction.send(WELCOME_MESSAGE, ephemeral=True)
 
 
 def setup(bot):
