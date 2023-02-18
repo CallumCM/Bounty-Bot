@@ -44,9 +44,7 @@ async def on_ready():
     print(
         f'I\'m in {fg.blue}{str(len(bot.guilds))}{fg.default} server{"s" if len(bot.guilds) > 1 else ""}!'
     )
-    
-    Path('./guilds.json').write_text(
-        json.dumps(bot.guilds, indent=2))
+
 
 util.load_directory(bot, 'extensions')
 util.load_directory(bot, 'commands')

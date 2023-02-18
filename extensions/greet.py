@@ -9,8 +9,25 @@ class Greet(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def write_serverlist(self):
+        servers = []
+        for i in self.bot.guilds:
+            servers.append(i.name + '\n')
+        with open("./servers.txt", "w") as serverlist:
+            serverlist.writelines(servers)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.write_serverlist()
+
+    @commands.Cog.listener()
+    async def on_guild_remove(self, guild):
+        self.write_serverlist()
+
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
+        self.write_serverlist()
+
         channel = util.find_channel(VALID_CHANNEL_NAMES, guild)
 
         # Create the channel if able to + it doesn't already exist
