@@ -8,11 +8,9 @@ __version__ = '0.0.0'
 
 import os
 import time
-import json
 import util
 import nextcord
 from console import fg
-from pathlib import Path
 from nextcord.ext import commands
 
 intents = nextcord.Intents.none()
