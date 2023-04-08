@@ -126,8 +126,12 @@ def check_for_updates():
     print("Fetching new bounties...")
 
     # Bounties we fetched from Replit
-    fetched_bounties = gql.replit(
-        GRAPHQL_PAYLOAD)[0]['data']['bountySearch']['items'][::-1]
+    try:
+        fetched_bounties = gql.replit(
+            GRAPHQL_PAYLOAD)[0]['data']['bountySearch']['items'][::-1]
+    except TypeError as e:
+        print('Error fetching bounties:', e)
+        return None
 
     print("Fetched new bounties")
 
