@@ -19,10 +19,10 @@ class BountyMessager(commands.Cog):
     async def update_bounty(self):
         new_bounties = bounty.check_for_updates()
         if new_bounties:
-            channels = [
+            channels = filter(lambda x: not x is None, [
                 util.find_channel(VALID_CHANNEL_NAMES, guild)
                 for guild in self.bot.guilds
-            ]
+            ])
 
             for channel in channels:
                 for new_bounty in new_bounties:

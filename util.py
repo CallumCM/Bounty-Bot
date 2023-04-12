@@ -13,10 +13,9 @@ def find_channel(names, guild: Guild):
     """
     Find a channel by an array of names, with the first name being the highest priority
     """
-    for name in names:
-        for channel in guild.channels:
-            if channel.name == name:
-                return channel
+    for channel in guild.channels:
+        if channel.name in names:
+            return channel
 
     return None
 
