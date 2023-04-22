@@ -20,13 +20,17 @@ class HelpCommand(commands.Cog):
     async def help_command(self, interaction: nextcord.Interaction):
         channel = util.find_channel(VALID_CHANNEL_NAMES, interaction.guild)
 
-        if channel:
-            await channel.send(SPECIFIC_CHANNEL_WELCOME)
+        try:
+            if channel:
+                await channel.send(SPECIFIC_CHANNEL_WELCOME)
 
-            first_bounty = bounty.most_recent_bounty()
-            await channel.send(embed=bounty.create_bounty_embed(first_bounty))
+                first_bounty = bounty.most_recent_bounty()
+                await channel.send(
+                    embed=bounty.create_bounty_embed(first_bounty))
 
-        await interaction.send(WELCOME_MESSAGE, ephemeral=True)
+            await interaction.send(WELCOME_MESSAGE, ephemeral=True)
+        except:
+            pass
 
 
 def setup(bot):
