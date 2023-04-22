@@ -6,3 +6,6 @@ bounties.json
 replit.nix
 .config/*
 guilds.json
+__pycache__/*
+.git/*
+venv/*
