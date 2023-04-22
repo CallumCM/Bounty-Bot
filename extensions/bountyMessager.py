@@ -26,8 +26,11 @@ class BountyMessager(commands.Cog):
 
             for channel in channels:
                 for new_bounty in new_bounties:
-                    await channel.send(
-                        embed=bounty.create_bounty_embed(new_bounty))
+                    try:
+                        await channel.send(
+                            embed=bounty.create_bounty_embed(new_bounty))
+                    except:
+                        pass
 
 
 def setup(bot):
