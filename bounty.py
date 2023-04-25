@@ -129,7 +129,7 @@ def check_for_updates():
     try:
         fetched_bounties = gql.replit(
             GRAPHQL_PAYLOAD)[0]['data']['bountySearch']['items'][::-1]
-    except TypeError as e:
+    except Exception as e:
         print('Error fetching bounties:', e)
         return None
 
