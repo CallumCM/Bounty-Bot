@@ -144,7 +144,10 @@ def check_for_updates():
                                      "%Y-%m-%dT%H:%M:%S.%fZ")
         epoch_time = (utc_time - datetime(1970, 1, 1)).total_seconds()
         new_bounty['timestamp'] = f'<t:{int(epoch_time)}:R>'
-        new_bounty['dollars'] = "${:.2f}".format(new_bounty['cycles'] / 100)
+
+        # * 0.9 because Replit takes 10%
+        new_bounty['dollars'] = "${:.2f}".format(
+            (new_bounty['cycles'] * 0.9) / 100)
 
     # Bounties that exist in bounties.json
     create_bounties_json_if_needed()
