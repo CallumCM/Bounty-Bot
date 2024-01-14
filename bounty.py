@@ -6,6 +6,12 @@ from datetime import datetime
 import nextcord
 from gql import Gql
 
+from console import bg
+old_print = print
+def new_print(*args, **kwargs):
+  old_print(bg.black, *args, **kwargs)
+print = new_print
+
 BOUNTIES_CACHE_LENGTH = 5
 
 BOUNTY_QUERY = """

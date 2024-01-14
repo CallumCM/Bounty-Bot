@@ -1,9 +1,13 @@
-from console import fg
+from console import fg, bg
 import os
 from traceback import extract_tb
 import subprocess
 from nextcord import Guild
 
+old_print = print
+def new_print(*args, **kwargs):
+  old_print(bg.black, *args, **kwargs)
+print = new_print
 
 def bot_has_permission(guild: Guild, permission: str):
     return getattr(guild.me.guild_permissions, permission)

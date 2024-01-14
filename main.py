@@ -10,7 +10,11 @@ import os
 import time
 import util
 import nextcord
-from console import fg
+from console import fg, bg
+old_print = print
+def new_print(*args, **kwargs):
+  old_print(bg.black, *args, **kwargs)
+print = new_print
 from nextcord.ext import commands
 
 intents = nextcord.Intents.none()
